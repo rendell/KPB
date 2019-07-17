@@ -1,0 +1,23 @@
+---
+title: "Kiwanis Palm Beach"
+author: "Rendell E . de Kort"
+date: "7/17/2019"
+output: html_document
+---
+
+
+Set working directory and read data files.
+There is one data file for each age cohort.
+```{r setup, include=FALSE}
+setwd("C:/Users/RendelldeKort/Cornerstone Economics/Internal - Documents/CLIENTS/CURRENT CLIENTS/Kiwanis Palm Beach/Data")
+data_0_2 <- read.csv("age_0_2.csv", stringsAsFactors = FALSE)
+data_3_4 <- read.csv("age_3_4.csv", stringsAsFactors = FALSE)
+data_7_12 <- read.csv("age_7_12.csv", stringsAsFactors = FALSE)
+data_13_18 <- read.csv("age_13_8.csv",stringsAsFactors = FALSE)
+```
+
+Seperate columns
+```{r}
+library(tidyr)
+data_0_2 %>% separate(Kico.segun.bo.persona..como.mayor.of.representante..ta.tres.problematicanan.of.amenaza.mas.grandi.actual.na.Aruba.pa.e.mucha.entre.2.pa.4.aña.di.edad..Indica.tres., c("N1","N2"), extra = "drop", fill = "right", sep = "([\\.\\?\\;])")
+```
