@@ -1,4 +1,5 @@
       
+     
 ---
 title: "Kiwanis Palm Beach"
 author: "Rendell E . de Kort"
@@ -6,47 +7,83 @@ date: "7/17/2019"
 output: html_document
 ---
 
+Install packages
+```{r}
+library(tidyr)
+library(dplyr)
+library(forcats)
+```
 
 Set working directory and read data files.
 There is one data file for each age cohort.
 ```{r setup, include=FALSE}
 setwd("C:/Users/RendelldeKort/Cornerstone Economics/Internal - Documents/CLIENTS/CURRENT CLIENTS/Kiwanis Palm Beach/Data")
 
-data_0_2 <- read.csv  ("age_0_2.csv", stringsAsFactors = FALSE, skip=1, header = FALSE)
-data_3_4 <- read.csv  ("age_3_4.csv", stringsAsFactors = FALSE, skip=1, header = FALSE)
-data_7_12 <- read.csv ("age_7_12.csv", stringsAsFactors = FALSE, skip=1, header = FALSE)
-data_13_18 <- read.csv("age_13_8.csv", stringsAsFactors = FALSE, skip=1, header = FALSE)
+data_0_2 <- read.csv  ("age_0_2.csv", stringsAsFactors = TRUE, skip=1, header = FALSE)
+data_3_4 <- read.csv  ("age_3_4.csv", stringsAsFactors = TRUE, skip=1, header = FALSE)
+data_5_6 <- read.csv  ("age_5_6.csv", stringsAsFactors = TRUE, skip=1, header = FALSE)
+data_7_12 <- read.csv ("age_7_12.csv", stringsAsFactors = TRUE, skip=1, header = FALSE)
+data_13_18 <- read.csv("age_13_8.csv", stringsAsFactors = TRUE, skip=1, header = FALSE)
 ```
-
+Create unique age group variable
 ```{r}
 data_0_2$Agegroup <- 2
 data_3_4$Agegroup <- 4
+data_5_6$Agegroup <- 6
 data_7_12$Agegroup <- 12
 data_13_18$Agegroup <- 18
 ```
-
+Add number to variable name so that when we merge we can identify them.
 ```{r}
-colnames(data_0_2) <- paste(colnames(data_0_2), "_2", sep = "_")
-colnames(data_3_4) <- paste(colnames(data_3_4), "_4", sep = "_")
-colnames(data_7_12) <- paste(colnames(data_7_12), "_12", sep = "_")
-colnames(data_13_18) <- paste(colnames(data_13_18), "_18", sep = "_")
+colnames(data_0_2) <- paste(colnames(data_0_2), "2", sep = "_")
+colnames(data_3_4) <- paste(colnames(data_3_4), "4", sep = "_")
+colnames(data_5_6) <- paste(colnames(data_5_6), "6", sep = "_")
+colnames(data_7_12) <- paste(colnames(data_7_12), "12", sep = "_")
+colnames(data_13_18) <- paste(colnames(data_13_18), "18", sep = "_")
 
 #key
-data_0_2$key <- data_0_2$V1__2 + 2000
-data_13_18$key <- data_13_18$V1__18 + 18000
-data_3_4$key <- data_3_4$V1__4 + 4000
-data_7_12$key <- data_7_12$V1__12 + 12000
+data_0_2$key <- data_0_2$V1_2 + 2000
+data_13_18$key <- data_13_18$V1_18 + 18000
+data_3_4$key <- data_3_4$V1_4 + 4000
+data_5_6$key <- data_5_6$V1_6 + 6000
+data_7_12$key <- data_7_12$V1_12 + 12000
 
 df <- full_join(data_0_2,data_3_4, by="key")
+df <- full_join(df,data_5_6, by="key")
 df <- full_join(df,data_7_12, by="key")
 df <- full_join(df,data_13_18, by="key")
 ```
 
+Remove individual data frames
 ```{r}
 rm(data_0_2)
 rm(data_3_4)
+rm(data_5_6)
 rm(data_7_12)
 rm(data_13_18)
+```
+
+Attempt to use purrr
+```{r}
+df$date <- fct_unify(df$V9_2,df$V9_4)
+                     
+                     ,df$V9_6,df$V9_12,df$V9_18)
+```
+
+
+
+Convert data frame variables to character for easier merging later on.
+```{r}
+data_0_2 %>%
+  mutate_all(as.character)
+data_3_4 %>%
+  mutate_all(as.character)
+data_5_6 %>%
+  mutate_all(as.character)
+data_7_12 %>%
+  mutate_all(as.character)
+data_13_18 %>%
+  mutate_all(as.character)
 ```
 
 Writing  "Rendell" function to automate merging of variables
@@ -54,38 +91,48 @@ Writing  "Rendell" function to automate merging of variables
 rendell <-function(df, Name_new_variable, 
                    Name_2, 
                    Name_4, 
+                   Name_6,
                    Name_12, 
                    Name_18) {
   df[, Name_new_variable]= coalesce(df[, Name_2], 
-                                    df[, Name_4], 
+                                    df[, Name_4],
+                                    df[, Name_6],
                                     df[, Name_12],
                                     df[, Name_18]
                                     )
   
   df <- df %>% select(-c(Name_2, 
-                         Name_4, 
+                         Name_4,
+                         Name_6,
                    Name_12, 
                    Name_18)) 
 }
 ```
 
 ```{r}
-df$V7__2 <- as.numeric(df$V7__2)
-df$V7__4<- as.numeric(df$V7__4)
-df$V7__12<- as.numeric(df$V7__12)
-df$V7__18<- as.numeric(df$V7__18)
+df$V7_2 <- as.numeric(df$V7_2)
+df$V7_4<- as.numeric(df$V7_4)
+df$V7_12<- as.numeric(df$V7_12)
+df$V7_18<- as.numeric(df$V7_18)
 
 df <- rendell(df                = df,
         Name_new_variable = "age_kid", 
-        Name_2         = "V7__2",
-        Name_4         = "V7__4", 
-        Name_12         = "V7__12", 
-        Name_18         = "V7__18")
+        Name_2         = "V7_2",
+        Name_4         = "V7_4",
+        Name_6         = "V7_6",
+        Name_12         = "V7_12", 
+        Name_18         = "V7_18")
 ```
+
+
+
+
+
+
+
+
 
 Seperate columns
 ```{r}
-library(tidyr)
-
 data_0_2 %>% separate(V23, into=c("N1","N2","N3","N4","N5"), sep = "\\;")
 ```
