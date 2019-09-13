@@ -1,0 +1,82 @@
+---
+title: "Waffle chart"
+output: html_notebook
+---
+
+```{r}
+Age <- read_excel("Age.xlsx")
+```
+
+
+#Installation and loading
+THis can be a pain. Trial and error.
+Reference: https://www.r-bloggers.com/how-to-make-square-pie-charts-for-infographics-in-r/
+
+```{r}
+install.packages("waffle", repos = "https://cinc.rud.is")
+# or
+devtools::install_git("https://git.rud.is/hrbrmstr/waffle.git")
+# or
+devtools::install_github("hrbrmstr/waffle")
+```
+
+#Fonts
+```{r}
+install.packages("extrafont")
+```
+
+```{r}
+library(extrafont)
+font_import()
+loadfonts(device="win")       #Register fonts for Windows bitmap output
+```
+
+
+# Data used
+```{r}
+gender <- data.frame(
+  Gender = c("Male","Female"),
+  hr_percentage = c(51,49),
+  stringsAsFactors = FALSE)
+```
+
+
+```{r}
+library(waffle)
+library(ggplot2)
+
+ggplot(data = gender, 
+         aes(fill = Gender, values = hr_percentage)) +
+  geom_waffle(n_rows = 10, size = 0.5, colour = "#ffffff",      flip = TRUE) +
+  scale_fill_manual(values = c("#e7bd42","#00006f")) +
+  coord_equal() +
+  theme_minimal() +
+  theme_enhance_waffle() +
+  labs(title = "% Male & Female - Survey Respondents ",
+       subtitle = "Kiwanis Community Analysis",
+       caption = "Plot prepared by Lovely Data")+
+   theme(text=element_text(family="Avenir")) #Avenir
+```
+
+```{r}
+Blue.bold.text <- element_text(face = "bold", color = "#00006f")
+
+ggplot(Age, aes(x=Age, color=Type)) + 
+    geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
+                   binwidth=.5,
+                   colour="#e7bd42", fill="#e7bd42") +
+    geom_density(alpha=.3, fill="#00006f") + labs(title = "Age distribution", color="#e7bd42",
+       subtitle = "Kiwanis Community Analysis",
+       caption = "Plot prepared by Cornerstone Economics")+ 
+  theme(title = Blue.bold.text, axis.title = Blue.bold.text,
+# Remove panel border
+panel.border = element_blank(),  
+# Remove panel grid lines
+panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),
+# Remove panel background
+panel.background = element_blank(),
+# Add axis line
+axis.line = element_line(colour = "#00006f")
+)
+```
