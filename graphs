@@ -31,12 +31,16 @@ font_import()
 loadfonts(device="win")       #Register fonts for Windows bitmap output
 ```
 
-
 # Data used
 ```{r}
 gender <- data.frame(
   Gender = c("Male","Female"),
   hr_percentage = c(51,49),
+  stringsAsFactors = FALSE)
+
+parents <- data.frame(
+  Both_Parents = c("Yes","No"),
+  hr_percentage = c(62,38),
   stringsAsFactors = FALSE)
 ```
 
@@ -45,30 +49,80 @@ gender <- data.frame(
 library(waffle)
 library(ggplot2)
 
-ggplot(data = gender, 
+```
+
+```{r}
+Blue.text <- element_text(color = "#00006f")
+```
+
+
+```{r}
+plot_gender <- ggplot(data = gender, 
          aes(fill = Gender, values = hr_percentage)) +
-  geom_waffle(n_rows = 10, size = 0.5, colour = "#ffffff",      flip = TRUE) +
+  geom_waffle(n_rows = 10, size = 0.5, 
+              colour ="#ffffff",
+              flip = TRUE) +
   scale_fill_manual(values = c("#e7bd42","#00006f")) +
   coord_equal() +
   theme_minimal() +
   theme_enhance_waffle() +
   labs(title = "% Male & Female - Survey Respondents ",
-       subtitle = "Kiwanis Community Analysis",
+       subtitle = "N=446",
        caption = "Plot prepared by Lovely Data")+
-   theme(text=element_text(family="Avenir")) #Avenir
+   theme(title = Blue.text, axis.title = Blue.text,text=element_text(family="Franklin Gothic Book"),legend.title = element_blank()
+         )
+
+ggsave("plot_gender.png", plot_gender, width=4, height=3)
 ```
 
 ```{r}
-Blue.bold.text <- element_text(face = "bold", color = "#00006f")
+plot_age <- ggplot(Age, aes(x=Age, color=Type, fill=Type)) + 
+    geom_density(alpha=.3) + labs(title = "Age distribution", 
+       subtitle = "N=446",
+       caption = "Plot prepared by Lovely Data")+ 
+  theme(title = Blue.text, axis.title = Blue.text,
+# Remove panel border
+panel.border = element_blank(),  
+# Remove panel grid lines
+panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(),
+# Remove panel background
+panel.background = element_blank(),
+# Add axis line
+axis.line = element_line(colour = "#00006f"),
+legend.title = element_blank(),
+text=element_text(family="Franklin Gothic Book")
+)+ scale_color_manual(values=c("#00006f", "#e7bd42"))+ scale_fill_manual(values = c("#00006f", "#e7bd42"))
 
-ggplot(Age, aes(x=Age, color=Type)) + 
-    geom_histogram(aes(y=..density..),      # Histogram with density instead of count on y-axis
-                   binwidth=.5,
-                   colour="#e7bd42", fill="#e7bd42") +
-    geom_density(alpha=.3, fill="#00006f") + labs(title = "Age distribution", color="#e7bd42",
-       subtitle = "Kiwanis Community Analysis",
-       caption = "Plot prepared by Cornerstone Economics")+ 
-  theme(title = Blue.bold.text, axis.title = Blue.bold.text,
+ggsave("plot_age.png", plot_age, width=4, height=3)
+```
+
+```{r}
+plot_parents <- ggplot(data = parents, 
+         aes(fill = Both_Parents, values = hr_percentage)) +
+  geom_waffle(n_rows = 10, size = 0.5, colour = "#ffffff",      flip = TRUE) +
+  scale_fill_manual(values = c("#e7bd42","#00006f")) +
+  coord_equal() +
+  theme_minimal() +
+  theme_enhance_waffle() +
+  labs(title = "% Children with both parents living at home",
+       subtitle = "N=447",
+       caption = "Plot prepared by Lovely Data")+
+   theme(title = Blue.text, 
+         axis.title=Blue.text,
+         text=element_text(family="Franklin Gothic Book")) +theme(legend.title = element_blank())
+
+ggsave("plot_parents.png", plot_parents, width=4, height=3)
+```
+#Age parents
+```{r}
+Age_parents <- read_excel("Age_Parents.xlsx")
+
+plot_age_parents <- ggplot(Age_Parents, aes(y=Age, x=Parent, color=Parent, fill=Parent)) + 
+    geom_boxplot(alpha=.3) + labs(title = "Age parents", 
+       subtitle = "N=435",
+       caption = "Plot prepared by Lovely Data")+ 
+  theme(title = Blue.text, axis.title = Blue.text,
 # Remove panel border
 panel.border = element_blank(),  
 # Remove panel grid lines
@@ -78,5 +132,10 @@ panel.grid.minor = element_blank(),
 panel.background = element_blank(),
 # Add axis line
 axis.line = element_line(colour = "#00006f")
-)
+)+ scale_color_manual(values=c("#00006f", "#e7bd42"))+ scale_fill_manual(values = c("#00006f", "#e7bd42"))+
+theme(legend.title = element_blank())+
+   theme(text=element_text(family="Franklin Gothic Book"))
+
+ggsave("plot_age_parents.png", plot_age_parents, width=4, height=3)
 ```
+
