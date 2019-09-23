@@ -138,4 +138,3 @@ theme(legend.title = element_blank())+
 
 ggsave("plot_age_parents.png", plot_age_parents, width=4, height=3)
 ```
-
